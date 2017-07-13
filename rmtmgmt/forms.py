@@ -61,4 +61,4 @@ class ISForm(forms.ModelForm):
     status = forms.ChoiceField(required=True,
                                choices=INTERVIEW_STATUS)
     scheduled_date = forms.DateTimeField(required=True)
-    remarks = forms.TextField(required=True)
+    remarks = forms.CharField(required=True)
