@@ -1,0 +1,115 @@
+
+{% extends 'base.html' %}
+
+{% block midpart %}
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/static/bower_components/font-awesome/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="/static/bower_components/Ionicons/css/ionicons.min.css">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/dist/css/AdminLTE.min.css">
+  <!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+  <link rel="stylesheet" href="/static/dist/css/skins/_all-skins.min.css">
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .btn-adjustment {width: 13%;float: right;margin: -30px 11px 0px 0px;padding-left:15px;}
+    .add-client {margin-top: -30px; }
+  </style>
+  
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+
+      <div class="row">
+        <div class="col-xs-12">
+
+          <div class="box box-success">
+            <div class="box-header">
+              <h3 class="box-title"> <b>{{ title }}</b></h3>
+            </div>
+            <a href="/client-management/" class="btn btn-social btn-dropbox btn-adjustment add-client">
+              View Client
+            </a>                        
+            <!-- <a href="/client-management/add/" class="btn btn-social btn-dropbox btn-adjustment add-client"> -->
+            <!--   Add Client -->
+            <!-- </a>             -->
+            <a href="/requirement-management/add/" class="btn btn-block btn-social btn-dropbox btn-adjustment">
+              Add Requirement
+            </a>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Group Name</th>
+                  <th>Position</th>
+                  <th>Skills</th>
+                  <th>Duration</th>
+                  <th>No of Position / Open Position</th>
+                  <th>Position Status</th>
+                  <th>Description / Remarks</th>
+                  <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in req %}
+                <tr>
+                  <td>{{ r.client }}</td>
+                  <td>{{ r.name }}</td>
+                  <td>{{ r.position_name }}</td>
+                  <td>{{ r.skills }}</td>
+                  <td>{{ r.duration }}</td>
+                  <td>{{ r.no_of_position }} / {{ r.open_position }}</td>
+                  <td>{{ r.get_position_status_display }}</td>
+                  <td>{{ r.desc }} / {{ r.remarks }}</td>
+                  <td>
+                    <a href="/requirement-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a></td>
+                </tr>
+                {% endfor %}
+                </tfoot>
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+        </div>
+        <!-- /.col -->
+      </div>
+
+
+
+
+<!-- jQuery 3 -->
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- DataTables -->
+<script src="/static/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="/static/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<!-- SlimScroll -->
+<script src="/static/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<!-- FastClick -->
+<script src="/static/bower_components/fastclick/lib/fastclick.js"></script>
+<!-- AdminLTE App -->
+<script src="/static/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="/static/dist/js/demo.js"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    $('#example1').DataTable();
+  })
+</script>
+{% endblock midpart %}

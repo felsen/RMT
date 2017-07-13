@@ -1,0 +1,116 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<body class="hold-transition login-page" style="overflow-y:auto;background-color:#FFFFFF;">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="#"><img width="40%" height="10%" src="/static/images/logo.png" title="Brisa Technologies"></a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body" style="background:#DCDCDC; box-shadow: 0 0 0px 0 rgba(0, 0, 0, 0.99), 0px 1px 14px 0px rgba(0, 0, 0, 0.93);">
+    <h3 class="login-box-msg"> <b>RMT</b> </h3>
+    {% if error %}
+    <p class="login-box-msg error">{{ error }}</p>
+    {% else %}
+    <p class="login-box-msg">Register a new Membership.</p>
+    {% endif %}
+    <form action="/user-registration/" method="post" id="id_register_login" autocomplete="off" > {% csrf_token %}
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>        
+        <input type="text" name="first_name" class="form-control" placeholder="First Name" style="border-color:#367FA9" >
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>        
+        <input type="text" name="last_name" class="form-control" placeholder="Last Name" style="border-color:#367FA9" >
+      </div>
+      <div class="form-group has-feedback">
+        <span class="icon ion-android-phone-portrait form-control-feedback"></span>        
+        <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" style="border-color:#367FA9" >
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <input type="email" name="email" class="form-control" placeholder="your_mail@brisatech.com" style="border-color:#367FA9">
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" style="border-color:#367FA9">
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-log-in form-control-feedback"></span>        
+        <input type="password" name="password_confirm" id="id_c_password" class="form-control" placeholder="Retype Password" style="border-color:#367FA9">
+      </div>
+      <div class="row">
+        <div class="col-xs-8">
+          <div class="checkbox icheck">
+            <label>
+              <input type="checkbox" checked /> I Agree
+            </label>
+          </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-xs-4">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        </div>
+        <!-- /.col -->
+      </div>
+    </form>
+
+    <a href="/user-login/" class="text-center">Already Member</a>
+
+  </div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery 3 -->
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- iCheck -->
+<script src="/static/plugins/iCheck/icheck.min.js"></script>
+
+<script src="/static/js/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+
+      $.validator.addMethod("passwordMatch", function(value, element){
+          var password = $("input#id_password").val();
+          var c_password = $("input#id_c_password").val();
+          if (password != c_password){
+              return false;
+          } else {
+              return true;
+          }
+     }, "Your password's must match.");
+
+
+     $("form#id_register_login").validate({
+          rules : {
+             first_name : {required: true},
+             last_name : {required: true},
+             mobile : {required: true, digits: true, maxlength: 10, minlength:10},
+             email : {required: true },
+             password : {required: true},
+             password_confirm : {required: true, passwordMatch: true},
+          }
+      });
+
+  });
+</script>
+
+
+<script>
+  $(function () {
+    $('input').iCheck({
+      checkboxClass: 'icheckbox_square-blue',
+      radioClass: 'iradio_square-blue',
+      increaseArea: '20%' // optional
+    });
+  });
+</script>
+
+
+
+</body>
+{% endblock content %}
