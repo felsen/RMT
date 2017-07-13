@@ -69,4 +69,6 @@ urlpatterns = patterns('',
 
     url(r'^approvals/$', rmt_views.approvals, name='approvals'),
 
+    url(r'^update-role/$', rmt_views.update_role, name='update-role'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

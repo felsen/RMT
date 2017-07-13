@@ -160,4 +160,9 @@ class InterviewSchedule(Base):
     scheduled_by = models.ForeignKey(User, blank=True, null=True)
     scheduled_date = models.DateTimeField(blank=True, null=True)
     remarks = models.TextField(max_length=500, blank=True, null=True)
-    status = models.IntegerField(choices=INTERVIEW_STATUS, blank=True, null=True)
+    status = models.IntegerField(choices=INTERVIEW_STATUS,
+                                 blank=True, null=True)
+
+    def __unicode__(self, ):
+        return "{}".format(self.candidate.first_name)
+

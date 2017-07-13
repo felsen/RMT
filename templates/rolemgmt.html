@@ -45,7 +45,7 @@
                 <div class="inner">
                   <h3>{{ inactive_users_count }}</h3>
 
-                  <p>Registered User's</p>
+                  <p>In-Active User's</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-person-add"></i>
@@ -165,8 +165,20 @@
   $("select#id_role").change(function(){
 
   var role = $(this).val();
-  var user = $(this).attr("data-info");
-  console.log(user)
+  var user = $("option:selected", this).attr("data-info");
+  $.ajax({
+      type: "GET",
+      url: "/update-role/",
+      data: {"role": role, "user": user},
+      async: true,
+      success: function(d){
+          alert("Success.");
+      },
+      failure: function(d){
+          alert("Error Occured.");
+      }
+  });
+  
   });
 
   });

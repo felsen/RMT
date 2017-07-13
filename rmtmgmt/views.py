@@ -1,12 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from rmtmgmt.forms import ResumeManagementForm, \
     RequirementForm, ClientForm
 from rmtmgmt.models import Client, Requirement, ResumeManagement
-from rolemgmt.models import Role
+from rolemgmt.models import Role, RoleConfig
+import json
 
 
 @require_http_methods(['GET'])
@@ -225,4 +226,29 @@ def approvals(request, ):
     """
     title = "Approval"
     return render(request, 'approvals.html', locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def update_role(request, ):
+    """
+    Update the user role.
+    """
+    resp, success = {}, False
+    role = request.GET.get('role')
+    user = request.GET.get('user')
+    if role and user:
+        try:
+            role_obj = Role.objects.get(id=int(role))
+            user_obj = User.objects.get(id=int(user))
+            role_conf, created = RoleConfig.objects.get_or_create(
+                user=user_obj)
+            role_conf.role = role_obj
+            role_conf.save()
+            success = True
+        except (Role.DoesNotExist, User.DoesNotExist):
+            success = False
+    resp['success'] = success
+    return HttpResponse(json.dumps(resp),
+                        content_type="application/json")
 

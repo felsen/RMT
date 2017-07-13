@@ -82,7 +82,7 @@ class RoleConfig(Base):
     access menu's:
     """
     user = models.ForeignKey(User)
-    role = models.ForeignKey(Role)
+    role = models.ForeignKey(Role, blank=True, null=True)
     active = models.IntegerField(default=2)
 
     class Meta:

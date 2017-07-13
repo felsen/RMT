@@ -1,5 +1,6 @@
 from django import forms
-from models import ResumeManagement, Client, Requirement
+from models import ResumeManagement, Client, \
+    Requirement, INTERVIEW_STATUS
 
 
 class ClientForm(forms.ModelForm):
@@ -52,3 +53,12 @@ class ResumeManagementForm(forms.ModelForm):
                   'notice_period', 'current_location', 'status',
                   'resume', 'remarks',)
 
+
+class ISForm(forms.ModelForm):
+    """
+    Interview schedule and status changing form.
+    """
+    status = forms.ChoiceField(required=True,
+                               choices=INTERVIEW_STATUS)
+    scheduled_date = forms.DateTimeField(required=True)
+    remarks = forms.TextField(required=True)

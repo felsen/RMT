@@ -46,12 +46,10 @@
                 <thead>
                 <tr>
                   <th>Requirement</th>
-                  <th>Candidate Name</th>
-                  <th>Skills</th>
+                  <th>Name</th>
                   <th>Mobile</th>
                   <th>Email</th>
                   <th>Exp / CTC / ECTC / NP</th>
-                  <th>Location</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -61,15 +59,16 @@
                 <tr>
                   <td>{{ r.requirement }}</td>
                   <td>{{ r.first_name }} {{ r.last_name }}</td>
-                  <td>{{ r.skills }}</td>
                   <td>{{ r.mobile }}</td>
                   <td>{{ r.email }}</td>
                   <td>{{ r.experience }} / {{ r.ctc }} / {{ r.ectc }} / {{ r.notice_period }}</td>
-                  <td>{{ r.current_location }}</td>
                   <td>{{ r.get_status_display }}</td>
                   <td>
-                    <a href="/{{ r.resume }}"><i class="fa fa-fw fa-download" style="color: green;"></i></a> |
-                    <a href="/resume-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i></a></td>
+                    <a href="#" data-toggle="modal" data-target="#modal-default">
+                      <i class="fa fa-fw fa-exchange" style="color: red;"></i>Status
+                    </a> |
+                    <a href="/{{ r.resume }}"><i class="fa fa-fw fa-download" style="color: green;"></i>Download</a> |
+                    <a href="/resume-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a></td>
                 </tr>
                 {% endfor %}
                 </tfoot>
@@ -82,6 +81,46 @@
         <!-- /.col -->
       </div>
 
+
+        <div class="modal fade" id="modal-default">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Interview Schedule</b></h4>
+              </div>
+
+              <form method="POST" action="#"> {% csrf_token %}              
+                <div class="modal-body">
+
+                  <div class="form-group col-xs-6">
+                    <label for="id_requirement">Status:</label>
+                    <select class="form-control input-sm" id="id_role" name="role">
+                      <option value="">---------</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-xs-6">
+                    <label for="id_schedule">Schedule:</label>
+                    <input class="form-control input-sm valid" id="id_dob" name="schedule" type="datetime-local" aria-required="true" aria-invalid="false">
+                  </div>
+                  <div class="form-group col-xs-6">
+                    <label for="id_remarks">Remarks:</label>
+                    <textarea class="form-control input-sm" cols="50" id="id_remarks" name="remarks" rows="5"></textarea>
+                  </div>
+                  
+                </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Schedule</button>
+              </div>
+              </form>
+              
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
 
 
 
