@@ -50,7 +50,7 @@ class ResumeManagementForm(forms.ModelForm):
         model = ResumeManagement
         fields = ('requirement', 'first_name', 'last_name', 'email',
                   'mobile', 'skills', 'experience', 'dob', 'ctc', 'ectc',
-                  'notice_period', 'current_location', 'status',
+                  'notice_period', 'current_location',
                   'resume', 'remarks',)
 
 
@@ -58,7 +58,14 @@ class ISForm(forms.ModelForm):
     """
     Interview schedule and status changing form.
     """
+    def __init__(self, *args, **kwargs):
+        super(ISForm, self).__init__(*args, **kwargs)
+        for lable in self.fields:
+            self.fields['label'].widget.attrs['class'] \
+                = 'form-control input-sm'
+
     status = forms.ChoiceField(required=True,
                                choices=INTERVIEW_STATUS)
     scheduled_date = forms.DateTimeField(required=True)
     remarks = forms.CharField(required=True)
+

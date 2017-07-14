@@ -33,7 +33,9 @@ def add_resume_mgmt(request, ):
     if request.method == "POST":
         form = ResumeManagementForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            f = form.save(commit=False)
+            f.status = 1
+            f.save()
             return HttpResponseRedirect("/resume-management/")
     return render(request, 'add_resume_mgmt.html', locals())
 
