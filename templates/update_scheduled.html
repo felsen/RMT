@@ -1,0 +1,42 @@
+
+<style>
+  .error {color: red;}
+</style>
+
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><b>Interview Status</b></h4>
+  </div>
+
+  <form method="POST" action="/update-interview-schedule/{{ scheduled_id }}/" id="id_is_status"> {% csrf_token %}              
+    <div class="modal-body">
+      {% for field in form %}
+      <div class="form-group col-xs-6">
+        <label>{{ field.label_tag }}</label>
+        {{ field }}
+      </div>  
+      {% endfor %}
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" style="margin: 0px 15px 0px 0px;">Update</button>
+    </div>
+  </form>
+  
+</div>
+<!-- /.modal-content -->
+
+<script src="/static/js/jquery.validate.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+
+      $("form#id_is_status").validate({
+           rules: {
+               status: {required: true},
+               remarks: {required: true},
+           }
+      });
+  });
+</script>
+

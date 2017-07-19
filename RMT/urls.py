@@ -71,4 +71,19 @@ urlpatterns = patterns('',
 
     url(r'^update-role/$', rmt_views.update_role, name='update-role'),
 
+    url(r'^is-status/(?P<resume_id>\d+)/(?P<req_id>\d+)/$',
+        rmt_views.update_resume_status, name='update-resume-status'),
+
+    url(r'^update-interview-schedule/(?P<scheduled_id>\d+)/$',
+        rmt_views.update_schedule, name='interview-schedule'),
+
+    url(r'^interview-history/(?P<resume_id>\d+)/$',
+        rmt_views.interview_history, name='interview-history'),
+
+    url(r'^update-approval-status/$',
+        rmt_views.update_approval_status, name='update-approval-status'),
+
+    url(r'^generate-col-letter/(?P<hrmgmt_id>\d+)/$',
+        rmt_views.generate_col_letter, name='generate-col-letter'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

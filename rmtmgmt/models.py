@@ -25,12 +25,19 @@ APPROVAL_STATUS = (
     (3, 'Rejected'),
 )
 
+# INTERVIEW_STATUS = (
+#     (1, 'Scheduled'),
+#     (2, 'Participated'),
+#     (3, 'Not Participated'),
+#     (4, 'Selected'),
+#     (5, 'Rejected'),
+#     (6, 'Re-Scheduled'),
+# )
+
 INTERVIEW_STATUS = (
-    (1, 'Participated'),
-    (2, 'Not Participated'),
-    (3, 'Selected'),
-    (4, 'Rejected'),
-    (5, 'Re-Scheduled'),
+    (1, 'Scheduled'),
+    (2, 'Selected'),
+    (3, 'Rejected'),
 )
 
 
@@ -125,9 +132,21 @@ class ResumeManagement(Base):
     resume = models.FileField(upload_to='static/uploads/',
                               blank=True, null=True)
     # created_by = models.ForeignKey(User, blank=True, null=True)
+    # is_blocked = models.BooleanField(default=False)
 
     def __unicode__(self, ):
         return "{} {}".format(self.first_name, self.last_name)
+
+    def get_is_status(self, ):
+        try:
+            isstatus = InterviewSchedule.objects.get(candidate=self)
+        except Exception:
+            isstatus = ""
+        return isstatus
+
+    def get_resume_history(self, ):
+        return InterviewScheduleHistory.objects.filter(
+            ischedule__candidate=self)
 
 
 class HRManagement(Base):
@@ -159,10 +178,28 @@ class InterviewSchedule(Base):
     requirement = models.ForeignKey(Requirement, blank=True, null=True)
     scheduled_by = models.ForeignKey(User, blank=True, null=True)
     scheduled_date = models.DateTimeField(blank=True, null=True)
-    remarks = models.TextField(max_length=500, blank=True, null=True)
     status = models.IntegerField(choices=INTERVIEW_STATUS,
                                  blank=True, null=True)
 
     def __unicode__(self, ):
         return "{}".format(self.candidate.first_name)
+
+
+class InterviewScheduleHistory(Base):
+    """
+    All the interview schedule history details has stored.
+    """
+    ischedule = models.ForeignKey(InterviewSchedule,
+                                  blank=True, null=True)
+    resume_status = models.IntegerField(choices=RESUME_STATUS,
+                                        blank=True, null=True)
+    interview_status = models.IntegerField(choices=INTERVIEW_STATUS,
+                                           blank=True, null=True)
+    remarks = models.TextField(max_length=500,
+                               blank=True, null=True)
+    date = models.DateTimeField(blank=True,
+                                null=True)
+
+    def __unicode__(self, ):
+        return "{}".format(self.ischedule.scheduled_by.get_full_name())
 

@@ -45,26 +45,22 @@
                   <th>Requirement</th>
                   <th>Candidate Name</th>
                   <th>Experience</th>
-                  <th>Approval Status</th>
-                  <th>Approved By</th>
-                  <th>TA Member</th>
+                  <th>Resume Status</th>
+                  <th>Interview Status</th>
+                  <th>Date</th>
                   <th>Remarks</th>
-                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for h in hrmgmt %}
+                {% for h in history %}
                 <tr>
-                  <td>{{ h.resume.requirement }}</td>
-                  <td>{{ h.resume.first_name }} {{ h.resume.last_name }}</td>
-                  <td>{{ h.resume.experience }}</td>
-                  <td>{{ h.get_approval_status_display }}</td>
-                  <td>{{ h.approved_by.get_full_name }}</td>
-                  <td>TA</td>
+                  <td>{{ h.ischedule.requirement.position_name }}</td>
+                  <td>{{ h.ischedule.candidate.first_name }} {{ h.ischedule.candidate.last_name }}</td>
+                  <td>{{ h.ischedule.candidate.experience }}</td>
+                  <td>{{ h.get_resume_status_display }}</td>
+                  <td>{{ h.date }}</td>
+                  <td>{{ h.get_interview_status_display }}</td>
                   <td>{{ h.remarks }}</td>
-                  <td>
-                    <a href="/generate-col-letter/{{ h.id }}/"><i class="fa fa-fw fa-arrow-circle-down" style="color: green;"></i>Gen COL</a>
-                  </td>
                 </tr>
                 {% endfor %}
                 </tfoot>

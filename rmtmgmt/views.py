@@ -3,9 +3,21 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import mm
+from reportlab.platypus import Paragraph
+from dateutil.parser import parse
+import datetime
+import os
+
 from rmtmgmt.forms import ResumeManagementForm, \
-    RequirementForm, ClientForm
-from rmtmgmt.models import Client, Requirement, ResumeManagement
+    RequirementForm, ClientForm, ISForm, ISUpdateForm
+from rmtmgmt.models import Client, Requirement, \
+    ResumeManagement, InterviewSchedule, \
+    InterviewScheduleHistory, HRManagement
 from rolemgmt.models import Role, RoleConfig
 import json
 
@@ -169,6 +181,7 @@ def hr_mgmt(request, ):
     HR Management listing function's.
     """
     title = "HR Management"
+    hrmgmt = HRManagement.objects.all()
     return render(request, 'hr_mgmt.html', locals())
 
 
@@ -217,6 +230,9 @@ def interview_schedule(request, ):
     Every day interview schdule function.
     """
     title = "Interview Schdule"
+    schedule = InterviewSchedule.objects.filter(
+        status=1,
+    ).exclude(candidate__status=4)
     return render(request, 'schedule.html', locals())
 
 
@@ -227,6 +243,7 @@ def approvals(request, ):
     Admin approval function's.
     """
     title = "Approval"
+    approval = HRManagement.objects.all()
     return render(request, 'approvals.html', locals())
 
 
@@ -253,4 +270,215 @@ def update_role(request, ):
     resp['success'] = success
     return HttpResponse(json.dumps(resp),
                         content_type="application/json")
+
+
+@require_http_methods(['GET', 'POST', ])
+@login_required(login_url='/user-login/')
+def update_resume_status(request, resume_id=None, req_id=None):
+    """
+    Updating the resume status / interview schedule.
+    """
+    form = ISForm(resume_id=resume_id)
+    if request.method == "POST":
+        data = request.POST.copy()
+        if data.get("status") and data.get("scheduled_date") \
+           and data.get("remarks"):
+            try:
+                resume = ResumeManagement.objects.get(id=int(resume_id))
+                resume.status = int(data.get("status"))
+                resume.save()
+                req = Requirement.objects.get(id=int(req_id))
+                scheduled_date = parse(data.get("scheduled_date"))
+                schedule, created = InterviewSchedule.objects.get_or_create(
+                    candidate=resume,
+                    requirement=req,
+                )
+                schedule.scheduled_by = request.user
+                schedule.scheduled_date = scheduled_date
+                schedule.status = 1
+                schedule.save()
+                InterviewScheduleHistory.objects.create(
+                    ischedule=schedule,
+                    resume_status=int(data.get("status")),
+                    interview_status=1,
+                    remarks=request.POST.get("remarks"),
+                    date=scheduled_date,
+                )
+                if resume.status == 4:
+                    HRManagement.objects.create(
+                        resume=resume,
+                        approval_status=1,
+                        created_by=request.user,
+                    )
+            except Exception as e:
+                pass
+            return HttpResponseRedirect("/resume-management/")
+    return render(request, 'is_status.html', locals())
+
+
+@require_http_methods(['GET', 'POST', ])
+@login_required(login_url='/user-login/')
+def update_schedule(request, scheduled_id=None):
+    """
+    This function is for updating the interview status.
+    """
+    form = ISUpdateForm()
+    if request.method == "POST":
+        form = ISUpdateForm(request.POST)
+        if form.is_valid():
+            try:
+                isu = InterviewSchedule.objects.get(
+                    id=int(scheduled_id),
+                )
+                isu.status = request.POST.get("status")
+                isu.remarks = request.POST.get("remarks")
+                isu.save()
+                InterviewScheduleHistory.objects.create(
+                    ischedule=isu,
+                    resume_status=isu.candidate.status,
+                    interview_status=request.POST.get("status"),
+                    remarks=request.POST.get("remarks"),
+                    date=datetime.datetime.now(),
+                )
+            except InterviewSchedule.DoesNotExist:
+                pass
+            return HttpResponseRedirect("/interview-schedule/")
+    return render(request, "update_scheduled.html", locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def interview_history(request, resume_id=None):
+    """
+    Function for all the interview status history.
+    """
+    title = "Interview History"
+    history = InterviewScheduleHistory.objects.filter(
+        ischedule__candidate__id=resume_id).order_by("resume_status")
+    return render(request, "interview_history.html", locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def update_approval_status(request):
+    """
+    Update the COL approval status by Admin.
+    """
+    resp, success = {}, False
+    status, user = request.GET.get("status"), request.GET.get("user")
+    remarks = request.GET.get("remarks")
+    if status and user and remarks:
+        try:
+            approval = HRManagement.objects.get(id=int(user))
+            approval.approval_status = int(status)
+            approval.remarks = remarks
+            approval.approved_by = request.user
+            approval.save()
+            isu = InterviewSchedule.objects.get(candidate=approval.resume)
+            isu.status = status
+            isu.save()
+            InterviewScheduleHistory.objects.create(
+                ischedule=isu,
+                resume_status=isu.candidate.status,
+                interview_status=status,
+                remarks=remarks,
+                date=datetime.datetime.now(),
+            )
+            success = True
+        except (HRManagement.DoesNotExist,
+                InterviewSchedule.DoesNotExist,
+                AttributeError):
+            approval = None
+    resp["success"] = success
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+def createParagraph(c, text, x, y):
+    """
+    Creating the paragraph text.
+    """
+    style = getSampleStyleSheet()
+    width, height = letter
+    p = Paragraph(text, style=style["Normal"])
+    p.wrapOn(c, width, height)
+    p.drawOn(c, x, y, mm)
+
+
+def createBulletListParagraph(c, text, x, y):
+    """
+    Creating the bullet text line.
+    """
+    style = getSampleStyleSheet()
+    width, height = letter
+    p = Paragraph(text, style=style["Normal"], bulletText='&bull')
+    p.wrapOn(c, width, height)
+    p.drawOn(c, x, y, mm)
+
+
+@require_http_methods(['GET', ])
+def generate_col_letter(request, hrmgmt_id=None):
+    """
+    Generate COL Letter for candidate.
+    """
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+    p = canvas.Canvas(response)
+    path = os.getcwd()
+    image_path = os.path.abspath(path + "/static/images/logo.png")
+    p.drawImage(image_path, 10, 770, width=155, height=60, mask=None)
+    ptext = """<font name=Times-Bold color=black size=14>Brisa Technologies Pvt.Ltd.</font>"""
+    createParagraph(p, ptext, 420, 815)
+    ptext = """<font name=Times color=black size=12>No.90, 27th Main,</font>"""
+    createParagraph(p, ptext, 420, 803)
+    ptext = """<font name=Times color=black size=12>HSR Layout,Sector-1,</font>"""
+    createParagraph(p, ptext, 420, 791)
+    ptext = """<font name=Times color=black size=12>Bangalore-560 102</font>"""
+    createParagraph(p, ptext, 420, 779)
+    ptext = """<font name=Times color=black size=12>Phone:+91-80-42134897</font>"""
+    createParagraph(p, ptext, 420, 767)
+    ptext = """<font name=Times color=black size=12>website:www.brisa-tech.com</font>"""
+    createParagraph(p, ptext, 420, 755)
+    p.line(10, 740, 580, 740)
+    ref_id = "Brisa/Jul19"
+    ptext = """<font name=Times-Bold color=black size=12>Ref: {}</font>""".format(ref_id)
+    createParagraph(p, ptext, 50, 710)
+    name = "Felix Stephen"
+    ptext = """<font name=Times-Bold color=black size=12>Dear {}</font>""".format(name)
+    createParagraph(p, ptext, 50, 670)
+    gen_date = datetime.datetime.now().strftime("%d/%m/%Y")
+    ptext = """<font name=Times-Bold color=black size=12>{}</font>""".format(str(gen_date))
+    createParagraph(p, ptext, 480, 710)
+    p.drawString(50, 630, "As per our discussion with you, please find below the terms and conditions of your conditional")
+    p.drawString(50, 605, "offer from Brisa Technologies Pvt. Ltd., Bangalore.")
+    salary = 40000000
+    ptext = """<bullet>&bull</bullet><font name=times-roman color=black size=14>Annual CTC would be INR {} /- per annum.</font> """.format(salary)
+    createBulletListParagraph(p, ptext, 100, 570)
+    ptext = """<bullet>&bull</bullet><font name=times-roman  size=14>Your Tentative Joining Date with Brisa Technologies would be {}.</font> """.format(gen_date)
+    createBulletListParagraph(p, ptext, 100, 545)
+    ptext = """<font name=Times-Bold color=black size=14>If your profile is shortlisted by our client, you will have to attend Face to</font>"""
+    createParagraph(p, ptext, 50, 490)
+    ptext = """<font name=Times-Bold color=black size=14>Face Interview during weekdays without fail</font>"""
+    createParagraph(p, ptext, 50, 465)
+    p.drawString(50, 435, "We will extend a final offer of employment, subject to you clearing a series of internal and ")
+    p.drawString(50, 420, "client interviews and your final selection. Please note that this is a conditional offer and does not ")
+    p.drawString(50, 405, "constitute a contract of employment, with validity of 7 working days starting from date of issue.")
+    stringLine = """Kindly send us an acknowledgment and confirm based on which we can process your CV """
+    ptext = """<u><font name=Times-Bold color=black size=14>{}</font></u>""".format(stringLine)
+    createParagraph(p, ptext, 50, 380)
+    ptext = """<u><font name=Times-Bold color=black size=14>further to our client.</font> </u>"""
+    createParagraph(p, ptext, 50, 365)
+    p.drawString(50,310,"For any clarification please feel free to call us at 080-42134897. ")
+    ptext = """<font name=Times-Bold color=black size=14>Thanks! </font>"""
+    createParagraph(p, ptext, 50, 240)
+    ptext = """<font name=Times-Bold color=black size=14>HR Manager</font>"""
+    createParagraph(p, ptext, 50, 220)
+    ptext = """<font name=Times-Bold color=black size=14> Brisa Technologies Pvt. Ltd., Bangalore.</font>"""
+    createParagraph(p, ptext, 50, 200)
+    p.save()
+    return response
+
+
+
+
+
 
