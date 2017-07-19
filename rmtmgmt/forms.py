@@ -10,6 +10,7 @@ RS = {
     5: ((6, 'Client Interview Scheduled'), ),
     6: ((7, 'Client Interview Done'), ),
     7: ((8, 'Client Shortlisted'), ),
+    8: ((9, 'Joined'), )
 }
 
 INTERVIEW_STATUS = (
@@ -99,3 +100,17 @@ class ISUpdateForm(forms.Form):
     status = forms.ChoiceField(required=True,
                                choices=INTERVIEW_STATUS)
     remarks = forms.CharField(required=True)
+
+
+class CTCUpdateForm(forms.Form):
+    """
+    Update joining date and CTC for approved candidate.
+    """
+    def __init__(self, *args, **kwargs):
+        super(CTCUpdateForm, self).__init__(*args, **kwargs)
+        for label in self.fields:
+            self.fields[label].widget.attrs["class"] = "form-control input-sm"
+
+    offered_ctc = forms.IntegerField(label="Offered CTC", required=True)
+    joining_date = forms.DateTimeField(label="Joining Date", required=True)
+

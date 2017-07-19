@@ -49,6 +49,8 @@
                   <th>Approved By</th>
                   <th>TA Member</th>
                   <th>Remarks</th>
+                  <th>Joining Date</th>
+                  <th>Offered CTC</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -62,8 +64,14 @@
                   <td>{{ h.approved_by.get_full_name }}</td>
                   <td>TA</td>
                   <td>{{ h.remarks }}</td>
+                  <td>{{ h.joining_date }}</td>
+                  <td>{{ h.offered_ctc }}</td>                  
                   <td>
+                    {% if not h.offered_ctc and not j.joining_date %}
+                    <a href="/update-salary-details/{{ h.id }}/" data-toggle="modal" data-target="#modal-default" >Update</a>
+                    {% else %}
                     <a href="/generate-col-letter/{{ h.id }}/"><i class="fa fa-fw fa-arrow-circle-down" style="color: green;"></i>Gen COL</a>
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}
@@ -77,6 +85,14 @@
         <!-- /.col -->
       </div>
 
+
+<div class="modal fade" id="modal-default">
+  <div class="modal-dialog">
+    {% include "salary.html" %}
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 

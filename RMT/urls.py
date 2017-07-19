@@ -86,4 +86,7 @@ urlpatterns = patterns('',
     url(r'^generate-col-letter/(?P<hrmgmt_id>\d+)/$',
         rmt_views.generate_col_letter, name='generate-col-letter'),
 
+    url(r'^update-salary-details/(?P<hrmgmt_id>\d+)/$',
+        rmt_views.update_salary_details, name='update-salary-details'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

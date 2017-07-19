@@ -25,15 +25,6 @@ APPROVAL_STATUS = (
     (3, 'Rejected'),
 )
 
-# INTERVIEW_STATUS = (
-#     (1, 'Scheduled'),
-#     (2, 'Participated'),
-#     (3, 'Not Participated'),
-#     (4, 'Selected'),
-#     (5, 'Rejected'),
-#     (6, 'Re-Scheduled'),
-# )
-
 INTERVIEW_STATUS = (
     (1, 'Scheduled'),
     (2, 'Selected'),
@@ -131,8 +122,7 @@ class ResumeManagement(Base):
     remarks = models.TextField(max_length=500, blank=True, null=True)
     resume = models.FileField(upload_to='static/uploads/',
                               blank=True, null=True)
-    # created_by = models.ForeignKey(User, blank=True, null=True)
-    # is_blocked = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, blank=True, null=True)
 
     def __unicode__(self, ):
         return "{} {}".format(self.first_name, self.last_name)

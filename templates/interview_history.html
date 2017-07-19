@@ -42,7 +42,6 @@
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                  <th>Requirement</th>
                   <th>Candidate Name</th>
                   <th>Experience</th>
                   <th>Resume Status</th>
@@ -54,12 +53,11 @@
                 <tbody>
                 {% for h in history %}
                 <tr>
-                  <td>{{ h.ischedule.requirement.position_name }}</td>
                   <td>{{ h.ischedule.candidate.first_name }} {{ h.ischedule.candidate.last_name }}</td>
                   <td>{{ h.ischedule.candidate.experience }}</td>
                   <td>{{ h.get_resume_status_display }}</td>
-                  <td>{{ h.date }}</td>
                   <td>{{ h.get_interview_status_display }}</td>
+                  <td>{{ h.date }}</td>
                   <td>{{ h.remarks }}</td>
                 </tr>
                 {% endfor %}

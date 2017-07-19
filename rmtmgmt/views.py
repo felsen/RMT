@@ -14,7 +14,8 @@ import datetime
 import os
 
 from rmtmgmt.forms import ResumeManagementForm, \
-    RequirementForm, ClientForm, ISForm, ISUpdateForm
+    RequirementForm, ClientForm, ISForm, \
+    ISUpdateForm, CTCUpdateForm
 from rmtmgmt.models import Client, Requirement, \
     ResumeManagement, InterviewSchedule, \
     InterviewScheduleHistory, HRManagement
@@ -393,6 +394,29 @@ def update_approval_status(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
+@require_http_methods(['GET', 'POST'])
+@login_required(login_url='/user-login/')
+def update_salary_details(request, hrmgmt_id=None):
+    """
+    Update the candidate joining_date and offered_ctc.
+    """
+    form = CTCUpdateForm()
+    if request.method == "POST":
+        data = request.POST.copy()
+        salary = data.get("offered_ctc")
+        joining = parse(data.get("joining_date"))
+        if salary and joining:
+            try:
+                hr = HRManagement.objects.get(id=int(hrmgmt_id))
+                hr.offered_ctc = salary
+                hr.joining_date = joining
+                hr.save()
+            except Exception as e:
+                pass
+            return HttpResponseRedirect("/hr-management/")
+    return render(request, 'salary.html', locals())
+
+
 def createParagraph(c, text, x, y):
     """
     Creating the paragraph text.
@@ -420,12 +444,30 @@ def generate_col_letter(request, hrmgmt_id=None):
     """
     Generate COL Letter for candidate.
     """
+    hr, first_name, last_name, offered_ctc, joining_date, ref_id \
+        = "", "", "", "", "", ""
+    try:
+        hr = HRManagement.objects.get(id=int(hrmgmt_id))
+    except HRManagement.DoesNotExist:
+        hr = hr
+    if hr:
+        client = hr.resume.requirement.client.name
+        first_name = hr.resume.first_name
+        last_name = hr.resume.last_name
+        offered_ctc = hr.offered_ctc
+        joining_date = hr.joining_date.strftime("%d/%m/%Y")
+        s = "{}".format(client)
+        ref_id = "Brisa/{}/{}/{}/{}".format("".join([i[0] for i in s.split()]),
+                                            datetime.datetime.now().strftime("%b%Y"),
+                                            "NE", 0)
+
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_offer"'.format(first_name, last_name)
     p = canvas.Canvas(response)
     path = os.getcwd()
     image_path = os.path.abspath(path + "/static/images/logo.png")
     p.drawImage(image_path, 10, 770, width=155, height=60, mask=None)
+
     ptext = """<font name=Times-Bold color=black size=14>Brisa Technologies Pvt.Ltd.</font>"""
     createParagraph(p, ptext, 420, 815)
     ptext = """<font name=Times color=black size=12>No.90, 27th Main,</font>"""
@@ -439,10 +481,11 @@ def generate_col_letter(request, hrmgmt_id=None):
     ptext = """<font name=Times color=black size=12>website:www.brisa-tech.com</font>"""
     createParagraph(p, ptext, 420, 755)
     p.line(10, 740, 580, 740)
-    ref_id = "Brisa/Jul19"
+    ref_id = ref_id
     ptext = """<font name=Times-Bold color=black size=12>Ref: {}</font>""".format(ref_id)
     createParagraph(p, ptext, 50, 710)
-    name = "Felix Stephen"
+
+    name = "{} {},".format(first_name, last_name)
     ptext = """<font name=Times-Bold color=black size=12>Dear {}</font>""".format(name)
     createParagraph(p, ptext, 50, 670)
     gen_date = datetime.datetime.now().strftime("%d/%m/%Y")
@@ -450,14 +493,14 @@ def generate_col_letter(request, hrmgmt_id=None):
     createParagraph(p, ptext, 480, 710)
     p.drawString(50, 630, "As per our discussion with you, please find below the terms and conditions of your conditional")
     p.drawString(50, 605, "offer from Brisa Technologies Pvt. Ltd., Bangalore.")
-    salary = 40000000
+    salary = offered_ctc
     ptext = """<bullet>&bull</bullet><font name=times-roman color=black size=14>Annual CTC would be INR {} /- per annum.</font> """.format(salary)
     createBulletListParagraph(p, ptext, 100, 570)
-    ptext = """<bullet>&bull</bullet><font name=times-roman  size=14>Your Tentative Joining Date with Brisa Technologies would be {}.</font> """.format(gen_date)
+    ptext = """<bullet>&bull</bullet><font name=times-roman  size=14>Your Tentative Joining Date with Brisa Technologies would be {}.</font> """.format(joining_date)
     createBulletListParagraph(p, ptext, 100, 545)
     ptext = """<font name=Times-Bold color=black size=14>If your profile is shortlisted by our client, you will have to attend Face to</font>"""
     createParagraph(p, ptext, 50, 490)
-    ptext = """<font name=Times-Bold color=black size=14>Face Interview during weekdays without fail</font>"""
+    ptext = """<font name=Times-Bold color=black size=14>Face Interview during weekdays without fail.</font>"""
     createParagraph(p, ptext, 50, 465)
     p.drawString(50, 435, "We will extend a final offer of employment, subject to you clearing a series of internal and ")
     p.drawString(50, 420, "client interviews and your final selection. Please note that this is a conditional offer and does not ")
@@ -465,7 +508,7 @@ def generate_col_letter(request, hrmgmt_id=None):
     stringLine = """Kindly send us an acknowledgment and confirm based on which we can process your CV """
     ptext = """<u><font name=Times-Bold color=black size=14>{}</font></u>""".format(stringLine)
     createParagraph(p, ptext, 50, 380)
-    ptext = """<u><font name=Times-Bold color=black size=14>further to our client.</font> </u>"""
+    ptext = """<u><font name=Times-Bold color=black size=14>further to our client.</font></u>"""
     createParagraph(p, ptext, 50, 365)
     p.drawString(50,310,"For any clarification please feel free to call us at 080-42134897. ")
     ptext = """<font name=Times-Bold color=black size=14>Thanks! </font>"""
@@ -476,9 +519,4 @@ def generate_col_letter(request, hrmgmt_id=None):
     createParagraph(p, ptext, 50, 200)
     p.save()
     return response
-
-
-
-
-
 
