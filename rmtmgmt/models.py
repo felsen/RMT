@@ -53,7 +53,7 @@ class Client(Base):
                             null=True, max_length=500)
     location = models.CharField("Client Location", max_length=100)
     active = models.BooleanField(default=True)
-    # created_by = models.ForeignKey(User, blank=True, null=True)
+    created_by = models.ForeignKey(User, blank=True, null=True)
 
     def __unicode__(self, ):
         return "{} - {}".format(self.name, self.location)
@@ -88,6 +88,18 @@ class Requirement(Base):
     def __unicode__(self, ):
         return "{} - {}".format(self.client.name,
                                 self.position_name, )
+
+    def get_lineup_count(self, ):
+        return ResumeManagement.objects.filter(status=1).count()
+
+    def get_col_count(self, ):
+        return ResumeManagement.objects.filter(status=4).count()
+
+    def get_ci_count(self, ):
+        return ResumeManagement.objects.filter(status=6).count()
+
+    def get_joining(self, ):
+        return ResumeManagement.objects.filter(status=9).count()
 
 
 class ResumeManagement(Base):
@@ -129,14 +141,19 @@ class ResumeManagement(Base):
 
     def get_is_status(self, ):
         try:
-            isstatus = InterviewSchedule.objects.get(candidate=self)
+            isstatus = InterviewSchedule.objects.get(
+                candidate=self,
+                resume_status=self.status,
+            )
         except Exception:
             isstatus = ""
         return isstatus
 
     def get_resume_history(self, ):
-        return InterviewScheduleHistory.objects.filter(
-            ischedule__candidate=self)
+        return InterviewSchedule.objects.filter(
+            candidate=self,
+            requirement=self.requirement,
+        )
 
 
 class HRManagement(Base):
@@ -166,30 +183,27 @@ class InterviewSchedule(Base):
     """
     candidate = models.ForeignKey(ResumeManagement, blank=True, null=True)
     requirement = models.ForeignKey(Requirement, blank=True, null=True)
-    scheduled_by = models.ForeignKey(User, blank=True, null=True)
+    scheduled_by = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        related_name="%(class)s_related_to_created_by",
+    )
+    approved_by = models.ForeignKey(
+        User,
+        blank=True, null=True,
+        related_name="%(class)s_related_to_approved_by",
+    )
     scheduled_date = models.DateTimeField(blank=True, null=True)
     status = models.IntegerField(choices=INTERVIEW_STATUS,
                                  blank=True, null=True)
+    resume_status = models.IntegerField(choices=RESUME_STATUS,
+                                        blank=True, null=True)
+    remarks1 = models.TextField(max_length=500,
+                                blank=True, null=True)
+    remarks2 = models.TextField(max_length=500,
+                                blank=True, null=True)
 
     def __unicode__(self, ):
         return "{}".format(self.candidate.first_name)
-
-
-class InterviewScheduleHistory(Base):
-    """
-    All the interview schedule history details has stored.
-    """
-    ischedule = models.ForeignKey(InterviewSchedule,
-                                  blank=True, null=True)
-    resume_status = models.IntegerField(choices=RESUME_STATUS,
-                                        blank=True, null=True)
-    interview_status = models.IntegerField(choices=INTERVIEW_STATUS,
-                                           blank=True, null=True)
-    remarks = models.TextField(max_length=500,
-                               blank=True, null=True)
-    date = models.DateTimeField(blank=True,
-                                null=True)
-
-    def __unicode__(self, ):
-        return "{}".format(self.ischedule.scheduled_by.get_full_name())
 

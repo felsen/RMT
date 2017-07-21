@@ -106,3 +106,9 @@ GRAPH_MODELS = {
     'group_models': True,
 }
 
+EMAIL_USE_TLS = ('587')
+EMAIL_HOST = ('smtp.brisatech.com')
+EMAIL_PORT = ('587')
+EMAIL_HOST_USER = ('felix.stephen@brisatech.com')
+EMAIL_HOST_PASSWORD = ("SIJIxvM8")
+

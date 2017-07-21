@@ -23,7 +23,7 @@
   <![endif]-->
 
   <style>
-    .btn-adjustment {width: 10%;float: right;margin: -30px 11px 0px 0px;padding-left:15px;}
+    .btn-adjustment {width: 13%;float: right;margin: -30px 11px 0px 0px;padding-left:15px;}
   </style>
   
   <!-- Google Font -->
@@ -37,7 +37,7 @@
             <div class="box-header">
               <h3 class="box-title"> <b>{{ title }}</b></h3>
             </div>
-            <a href="/resume-management/add/" class="btn btn-block btn-social btn-dropbox btn-adjustment">
+            <a href="/resume-management/add/" class="btn btn-block btn-social btn-dropbox btn-adjustment" style="width:13%;">
               Add Resume
             </a>
             <!-- /.box-header -->
@@ -66,15 +66,19 @@
                   <td>{{ r.get_status_display }}</td>
                   <td>{{ r.get_is_status.get_status_display }}</td>
                   <td>
-                    {% if not r.get_is_status.status or not r.get_is_status.status == 3 %}
-                    <a href="/is-status/{{ r.id }}/{{ r.requirement.id }}/" data-toggle="modal" data-target="#modal-default">
+                    {% if r.get_is_status.status == 2 or not r.get_is_status %}
+                    <a href="/is-status/{{ r.id }}/{{ r.requirement.id }}/" style="cursor:pointer;">
                       <i class="fa fa-fw fa-exchange" style="color: red;"></i>Status
                     </a> |
+                    <!-- {#% elif r.get_is_status.status == 1 %#} -->
+                    <!-- <a href="/update-interview-schedule/{#{ r.id }#}/{#{ r.requirement.id }#}/" style="cursor:pointer;"> -->
+                    <!--   <i class="fa fa-fw fa-exchange" style="color: red;"></i>Status -->
+                    <!-- </a> |                     -->
                     {% endif %}
                     <a href="/{{ r.resume }}"><i class="fa fa-fw fa-download" style="color: green;"></i>Download</a> |
                     <a href="/resume-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a>
                     {% if r.get_resume_history %}
-                    | <a href="/interview-history/{{ r.id }}/"><i class="fa fa-fw fa-history" style="color: blue;"></i>History</a>
+                    | <a href="/interview-history/{{ r.id }}/{{ r.requirement.id }}/"><i class="fa fa-fw fa-history" style="color: blue;"></i>History</a>
                     {% endif %}
                   </td>
                 </tr>
@@ -116,6 +120,7 @@
 <!-- AdminLTE for demo purposes -->
 <script src="/static/dist/js/demo.js"></script>
 <!-- page script -->
+
 <script>
   $(function () {
     $('#example1').DataTable();

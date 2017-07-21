@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
+from django.core.mail import EmailMessage, send_mail
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -18,9 +19,22 @@ from rmtmgmt.forms import ResumeManagementForm, \
     ISUpdateForm, CTCUpdateForm
 from rmtmgmt.models import Client, Requirement, \
     ResumeManagement, InterviewSchedule, \
-    InterviewScheduleHistory, HRManagement
+    HRManagement
 from rolemgmt.models import Role, RoleConfig
 import json
+
+
+def send_email_rmt(resume, email, content):
+    """
+    sending email based in resume status.
+    """
+    sender = "felix.stephen@brisatech.com"
+    to = "felix.stephen@brisatech.com"
+    subject = "Technical Interview"
+    message = "Hi, Interview scheduled at 2 PM."
+    email = EmailMessage(subject, message, sender, [to])
+    email.attach_file("/home/felsen/questions.txt")
+    email.send()
 
 
 @require_http_methods(['GET'])
@@ -126,7 +140,9 @@ def add_client_mgmt(request, ):
     if request.method == "POST":
         form = ClientForm(request.POST)
         if form.is_valid():
-            form.save()
+            f = form.save(commit=False)
+            f.created_by = request.user
+            f.save()
             return HttpResponseRedirect("/client-management/")
     return render(request, 'add_client_mgmt.html', locals())
 
@@ -279,32 +295,31 @@ def update_resume_status(request, resume_id=None, req_id=None):
     """
     Updating the resume status / interview schedule.
     """
+    title = "Update Interview Schedule"
     form = ISForm(resume_id=resume_id)
     if request.method == "POST":
         data = request.POST.copy()
-        if data.get("status") and data.get("scheduled_date") \
+        if data.get("resume_status") and data.get("interview_status") \
            and data.get("remarks"):
             try:
                 resume = ResumeManagement.objects.get(id=int(resume_id))
-                resume.status = int(data.get("status"))
+                resume.status = int(data.get("resume_status"))
                 resume.save()
+
                 req = Requirement.objects.get(id=int(req_id))
-                scheduled_date = parse(data.get("scheduled_date"))
-                schedule, created = InterviewSchedule.objects.get_or_create(
+                schedule = InterviewSchedule.objects.create(
                     candidate=resume,
                     requirement=req,
                 )
                 schedule.scheduled_by = request.user
-                schedule.scheduled_date = scheduled_date
-                schedule.status = 1
+                schedule.approved_by = request.user
+                schedule.status = int(data.get("interview_status"))
+                schedule.resume_status = int(data.get("resume_status"))
+                schedule.remarks1 = data.get("remarks")
                 schedule.save()
-                InterviewScheduleHistory.objects.create(
-                    ischedule=schedule,
-                    resume_status=int(data.get("status")),
-                    interview_status=1,
-                    remarks=request.POST.get("remarks"),
-                    date=scheduled_date,
-                )
+
+#                send_email_rmt(resume, data.get("email"), data.get("remarks"))
+
                 if resume.status == 4:
                     HRManagement.objects.create(
                         resume=resume,
@@ -319,43 +334,41 @@ def update_resume_status(request, resume_id=None, req_id=None):
 
 @require_http_methods(['GET', 'POST', ])
 @login_required(login_url='/user-login/')
-def update_schedule(request, scheduled_id=None):
+def update_schedule(request, scheduled_id=None, req_id=None):
     """
     This function is for updating the interview status.
     """
+    title = "Update Interview Status"
     form = ISUpdateForm()
     if request.method == "POST":
         form = ISUpdateForm(request.POST)
         if form.is_valid():
             try:
+                candidate = ResumeManagement.objects.get(id=int(scheduled_id))
                 isu = InterviewSchedule.objects.get(
-                    id=int(scheduled_id),
+                    candidate__id=int(scheduled_id),
+                    requirement__id=int(req_id),
+                    resume_status=candidate.status,
                 )
                 isu.status = request.POST.get("status")
-                isu.remarks = request.POST.get("remarks")
+                isu.remarks2 = request.POST.get("remarks")
                 isu.save()
-                InterviewScheduleHistory.objects.create(
-                    ischedule=isu,
-                    resume_status=isu.candidate.status,
-                    interview_status=request.POST.get("status"),
-                    remarks=request.POST.get("remarks"),
-                    date=datetime.datetime.now(),
-                )
             except InterviewSchedule.DoesNotExist:
                 pass
-            return HttpResponseRedirect("/interview-schedule/")
+            return HttpResponseRedirect("/resume-management/")
     return render(request, "update_scheduled.html", locals())
 
 
 @require_http_methods(['GET', ])
 @login_required(login_url='/user-login/')
-def interview_history(request, resume_id=None):
+def interview_history(request, resume_id=None, req_id=None):
     """
     Function for all the interview status history.
     """
     title = "Interview History"
-    history = InterviewScheduleHistory.objects.filter(
-        ischedule__candidate__id=resume_id).order_by("resume_status")
+    history = InterviewSchedule.objects.filter(
+        candidate__id=resume_id,
+        requirement__id=req_id).order_by("resume_status")
     return render(request, "interview_history.html", locals())
 
 
@@ -415,6 +428,20 @@ def update_salary_details(request, hrmgmt_id=None):
                 pass
             return HttpResponseRedirect("/hr-management/")
     return render(request, 'salary.html', locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def reports(request, status=None):
+    """
+    This is the function will track the reports.
+    """
+    title = "Reports"
+    if status == "resume":
+        resume_status = Requirement.objects.all()
+    elif status == "requirement":
+        requirement_status = Requirement.objects.all()
+    return render(request, 'reports.html', locals())
 
 
 def createParagraph(c, text, x, y):

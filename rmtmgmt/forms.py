@@ -19,6 +19,12 @@ INTERVIEW_STATUS = (
 )
 
 
+INTERVIEW_APPROVAL_STATUS = (
+    (2, 'Approved'),
+    (3, 'Rejected'),
+)
+
+
 class ClientForm(forms.ModelForm):
     """
     Client model form fields are defined here.
@@ -78,14 +84,20 @@ class ISForm(forms.Form):
         resume = kwargs.pop("resume_id")
         resume = ResumeManagement.objects.get(id=int(resume))
         super(ISForm, self).__init__(*args, **kwargs)
-        self.fields['status'].choices = RS.get(resume.status)
+        self.fields['resume_status'].choices = RS.get(resume.status)
+        if resume.status == 3:
+            self.fields['interview_status'].choices = INTERVIEW_APPROVAL_STATUS
         for label in self.fields:
             self.fields[label].widget.attrs['class'] = 'form-control input-sm'
 
-    status = forms.ChoiceField(required=True,
-                               choices=RESUME_STATUS)
-    scheduled_date = forms.DateTimeField(required=True)
+    resume_status = forms.ChoiceField(required=True,
+                                      choices=RESUME_STATUS)
+    interview_status = forms.ChoiceField(required=True,
+                                         choices=INTERVIEW_STATUS)
     remarks = forms.CharField(required=True)
+
+    class Meta:
+        fields = ("resume_status", "interview_status", "remarks", )
 
 
 class ISUpdateForm(forms.Form):

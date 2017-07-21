@@ -44,7 +44,7 @@
                 <tr>
                   <th>Requirement</th>
                   <th>Candidate Name</th>
-                  <th>Experience</th>
+                  <th>Experience / CTC / ECTC / NP</th>
                   <th>Approval Status</th>
                   <th>Approved By</th>
                   <th>TA Member</th>
@@ -59,7 +59,7 @@
                 <tr>
                   <td>{{ h.resume.requirement }}</td>
                   <td>{{ h.resume.first_name }} {{ h.resume.last_name }}</td>
-                  <td>{{ h.resume.experience }}</td>
+                  <td>{{ h.resume.experience }} / {{ h.resume.ctc }} / {{ h.resume.ectc }} / {{ h.resume.notice_period }}</td>
                   <td>{{ h.get_approval_status_display }}</td>
                   <td>{{ h.approved_by.get_full_name }}</td>
                   <td>TA</td>

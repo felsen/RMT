@@ -1,6 +1,5 @@
-
 {% extends 'base.html' %}
-
+{% load rolemgmt_tags %}
 {% block midpart %}
 
   <!-- Font Awesome -->
@@ -37,60 +36,109 @@
             <div class="box-header">
               <h3 class="box-title"> <b>{{ title }}</b></h3>
             </div>
-            <!-- /.box-header -->
+
             <div class="box-body">
+
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3></h3>
+
+                  <p>Resume Status count</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-stats-bars"></i>
+                </div>
+                <a href="/reports/resume/" class="small-box-footer">
+                  More info <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </div>
+
+
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3></h3>
+
+                  <p>Requirement Status</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-stats-bars"></i>
+                </div>
+                <a href="/reports/requirement/" class="small-box-footer">
+                  More info <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </div>
+
+            {% if status == 'resume' %}
+
+            <div class="col-xs-12">
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                   <th>Requirement</th>
-                  <th>Annual Billing</th>
-                  <th>Duration</th>
-                  <th>Candidate Name</th>
-                  <th>Experience / CTC / ECTC / NP</th>
-                  <th>Status</th>
-                  <th>Remarks</th>
-                  <th>Action</th>
+                  <th>Line Up</th>
+                  <th>COL</th>
+                  <th>CI</th>
+                  <th>Joining</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for a in approval %}
+                {% for u in resume_status %}
                 <tr>
-                  <td>{{ a.resume.requirement }}</td>
-                  <td>{{ a.resume.requirement.annual_billing }}</td>
-                  <td>{{ a.resume.requirement.duration }}</td>
-                  <td>{{ a.resume.first_name }} {{ a.resume.last_name }}</td>
-                  <td>{{ a.resume.experience }} / {{ a.resume.ctc }} / {{ a.resume.ectc }} / {{ a.resume.notice_period }}</td>
-                  <td>{{ a.get_approval_status_display }}</td>
-                  {% if a.approval_status == 1 %}                  
-                  <td>
-                    <textarea name="remarks" value=""></textarea>
-                  </td>
-                  <td>
-                    <a href="#" data-info="2-{{ a.id }}">
-                      <i class="fa fa-fw fa-thumbs-up" style="color: green;"></i>Approve
-                    </a> |
-                    <a href="#" data-info="3-{{ a.id }}">
-                      <i class="fa fa-fw fa-thumbs-down" style="color: red;"></i>Reject
-                    </a>
-                  </td>
-                  {% else %}
-                  <td>
-                    {{ a.remarks }}
-                  </td>
-                  <td>
-                    {% if a.approval_status == 2 %}
-                    <i class="fa fa-fw fa-thumbs-up" style="color: green;"></i> {{ a.get_approval_status_display }}
-                    {% elif a.approval_status == 3 %}
-                    <i class="fa fa-fw fa-thumbs-down" style="color: red;"></i> {{ a.get_approval_status_display }}
-                    {% endif %}
-                  </td>
-                  {% endif %}
+                  <td>{{ u }}</td>
+                  <td>{{ u.get_lineup_count }}</td>
+                  <td>{{ u.get_col_count }}</td>
+                  <td>{{ u.get_ci_count }}</td>
+                  <td>{{ u.get_joining }}</td>
                 </tr>
                 {% endfor %}
                 </tfoot>
               </table>
+             </div>
+
+            {% elif status == 'requirement' %}
+
+            <div class="col-xs-12">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Requirement</th>
+                  <th>Primary Skills</th>
+                  <th>No of Position</th>
+                  <th>Open Position</th>
+                  <th>Location</th>
+                  <th>TA</th>
+                  <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in requirement_status %}
+                <tr>
+                  <td>{{ r.client }}</td>
+                  <td>{{ r.position_name }}</td>
+                  <td>{{ r.skills }}</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                {% endfor %}
+                </tfoot>
+              </table>
+             </div>
+             {% endif %}
+
+
+
             </div>
-            <!-- /.box-body -->
+            
           </div>
           <!-- /.box -->
         </div>
@@ -120,38 +168,31 @@
 <script type="text/javascript">
   $(document).ready(function(){
 
-  $("a").click(function(){
+  $("select#id_role").change(function(){
 
-  var info = $(this).attr("data-info").split("-");
-  var status = info[0];
-  var user = info[1]
-  var remarks = $(this).parent().prev("td").find("textarea").val();
-  
+  var role = $(this).val();
+  var user = $("option:selected", this).attr("data-info");
   $.ajax({
       type: "GET",
-      url: "/update-approval-status/",
-      data: {"status": status, "user": user, "remarks": remarks},
-      async: false,
+      url: "/update-role/",
+      data: {"role": role, "user": user},
+      async: true,
       success: function(d){
-          if (d.success = true){
-              location.reload();
-          } else {
-              alert("Error Occured;")
-          }
+          alert("Success.");
       },
       failure: function(d){
-          alert("Error Occured;");
+          alert("Error Occured.");
       }
   });
-  return false;
-  });
   
+  });
+
   });
 </script>
 
 <script>
   $(function () {
-    $('#example1').DataTable();
-  })
+    $("#example1").DataTable();
+  });
 </script>
 {% endblock midpart %}

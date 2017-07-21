@@ -53,12 +53,12 @@
                 <tbody>
                 {% for h in history %}
                 <tr>
-                  <td>{{ h.ischedule.candidate.first_name }} {{ h.ischedule.candidate.last_name }}</td>
-                  <td>{{ h.ischedule.candidate.experience }}</td>
+                  <td>{{ h.candidate.first_name }} {{ h.candidate.last_name }}</td>
+                  <td>{{ h.candidate.experience }}</td>
                   <td>{{ h.get_resume_status_display }}</td>
-                  <td>{{ h.get_interview_status_display }}</td>
-                  <td>{{ h.date }}</td>
-                  <td>{{ h.remarks }}</td>
+                  <td>{{ h.get_status_display }}</td>
+                  <td>{{ h.created_on }}</td>
+                  <td>{{ h.remarks1 }}</td>
                 </tr>
                 {% endfor %}
                 </tfoot>

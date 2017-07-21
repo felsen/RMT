@@ -74,10 +74,10 @@ urlpatterns = patterns('',
     url(r'^is-status/(?P<resume_id>\d+)/(?P<req_id>\d+)/$',
         rmt_views.update_resume_status, name='update-resume-status'),
 
-    url(r'^update-interview-schedule/(?P<scheduled_id>\d+)/$',
+    url(r'^update-interview-schedule/(?P<scheduled_id>\d+)/(?P<req_id>\d+)/$',
         rmt_views.update_schedule, name='interview-schedule'),
 
-    url(r'^interview-history/(?P<resume_id>\d+)/$',
+    url(r'^interview-history/(?P<resume_id>\d+)/(?P<req_id>\d+)/$',
         rmt_views.interview_history, name='interview-history'),
 
     url(r'^update-approval-status/$',
@@ -88,5 +88,10 @@ urlpatterns = patterns('',
 
     url(r'^update-salary-details/(?P<hrmgmt_id>\d+)/$',
         rmt_views.update_salary_details, name='update-salary-details'),
+
+    url(r'^reports/$', rmt_views.reports, name='reports'),
+
+    url(r'^reports/(?P<status>\w+)/$', rmt_views.reports,
+        name='report-status'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
