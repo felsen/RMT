@@ -111,7 +111,6 @@
           title          : "{{ i.candidate.first_name }}-{{ i.candidate.get_status_display }}",
           start          : new Date("{{ i.scheduled_date|safe }}"),
           allDay         : false,
-          url            : "/update-interview-schedule/{{ i.id }}/",
           backgroundColor: '#0073b7', //Blue
           borderColor    : '#0073b7' //Blue
        },
@@ -180,11 +179,11 @@
   })
 </script>
 
-<script>
-  $(function () {
-    $("a.fc-day-grid-event").attr("data-toggle", "modal");
-    $("a.fc-day-grid-event").attr("data-target", "#modal-default");
-  });
-</script>
+<!-- <script> -->
+<!--   $(function () { -->
+<!--     $("a.fc-day-grid-event").attr("data-toggle", "modal"); -->
+<!--     $("a.fc-day-grid-event").attr("data-target", "#modal-default"); -->
+<!--   }); -->
+<!-- </script> -->
 
 {% endblock midpart %}

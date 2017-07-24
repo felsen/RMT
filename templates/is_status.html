@@ -37,7 +37,7 @@
             <!-- /.box-header -->
             <div class="box-body">
 
-              <form method="POST" action="/is-status/{{ resume_id }}/{{ req_id }}/" id="id_is_status"> {% csrf_token %}              
+              <form autocomplete="off" method="POST" action="/is-status/{{ resume_id }}/{{ req_id }}/" id="id_is_status"> {% csrf_token %}
                 <div class="modal-body">
                   {% for field in form %}
                   <div class="form-group col-xs-6">
@@ -83,12 +83,12 @@
 <script type="text/javascript">
   $(document).ready(function(){
 
-      $("input#id_scheduled_date").attr("type", "datetime-local");
+  $("input#id_date").attr("type", "datetime-local");
   
       $("form#id_is_status").validate({
            rules: {
                status: {required: true},
-               scheduled_date: {required: true},
+               date: {required: true},
                email : {required: true},
                remarks: {required: true},
            }

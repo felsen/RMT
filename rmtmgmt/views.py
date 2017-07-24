@@ -16,7 +16,7 @@ import os
 
 from rmtmgmt.forms import ResumeManagementForm, \
     RequirementForm, ClientForm, ISForm, \
-    ISUpdateForm, CTCUpdateForm
+    ISUpdateForm, CTCUpdateForm, ISNForm
 from rmtmgmt.models import Client, Requirement, \
     ResumeManagement, InterviewSchedule, \
     HRManagement
@@ -296,7 +296,10 @@ def update_resume_status(request, resume_id=None, req_id=None):
     Updating the resume status / interview schedule.
     """
     title = "Update Interview Schedule"
+    r_status = ResumeManagement.objects.get(id=int(resume_id))
     form = ISForm(resume_id=resume_id)
+    if r_status.status <= 6 or r_status.status == 8:
+        form = ISNForm(resume_id=resume_id)
     if request.method == "POST":
         data = request.POST.copy()
         if data.get("resume_status") and data.get("interview_status") \
@@ -307,15 +310,19 @@ def update_resume_status(request, resume_id=None, req_id=None):
                 resume.save()
 
                 req = Requirement.objects.get(id=int(req_id))
+
                 schedule = InterviewSchedule.objects.create(
                     candidate=resume,
                     requirement=req,
                 )
+
                 schedule.scheduled_by = request.user
                 schedule.approved_by = request.user
                 schedule.status = int(data.get("interview_status"))
                 schedule.resume_status = int(data.get("resume_status"))
                 schedule.remarks1 = data.get("remarks")
+                if data.get("date") is not None:
+                    schedule.scheduled_date = parse(data.get("date"))
                 schedule.save()
 
 #                send_email_rmt(resume, data.get("email"), data.get("remarks"))
@@ -391,13 +398,7 @@ def update_approval_status(request):
             isu = InterviewSchedule.objects.get(candidate=approval.resume)
             isu.status = status
             isu.save()
-            InterviewScheduleHistory.objects.create(
-                ischedule=isu,
-                resume_status=isu.candidate.status,
-                interview_status=status,
-                remarks=remarks,
-                date=datetime.datetime.now(),
-            )
+
             success = True
         except (HRManagement.DoesNotExist,
                 InterviewSchedule.DoesNotExist,

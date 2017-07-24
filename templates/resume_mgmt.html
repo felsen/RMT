@@ -66,7 +66,8 @@
                   <td>{{ r.get_status_display }}</td>
                   <td>{{ r.get_is_status.get_status_display }}</td>
                   <td>
-                    {% if r.get_is_status.status == 2 or not r.get_is_status %}
+                    {% if not r.status == 9 %}
+                    {% if r.get_is_status.status or not r.get_is_status %}
                     <a href="/is-status/{{ r.id }}/{{ r.requirement.id }}/" style="cursor:pointer;">
                       <i class="fa fa-fw fa-exchange" style="color: red;"></i>Status
                     </a> |
@@ -74,6 +75,7 @@
                     <!-- <a href="/update-interview-schedule/{#{ r.id }#}/{#{ r.requirement.id }#}/" style="cursor:pointer;"> -->
                     <!--   <i class="fa fa-fw fa-exchange" style="color: red;"></i>Status -->
                     <!-- </a> |                     -->
+                    {% endif %}
                     {% endif %}
                     <a href="/{{ r.resume }}"><i class="fa fa-fw fa-download" style="color: green;"></i>Download</a> |
                     <a href="/resume-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a>

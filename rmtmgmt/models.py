@@ -13,10 +13,10 @@ RESUME_STATUS = (
     (3, 'HR Interview'),
     (4, 'Conditional Offer Letter'),
     (5, 'Client Short Listing'),
-    (6, 'Client Interview Scheduled'),
+    (6, 'Client Interview Schedule'),
     (7, 'Client Interview Done'),
     (8, 'Client Shortlisted'),
-    (9, 'Joined'),
+    (9, 'Joining'),
 )
 
 APPROVAL_STATUS = (
