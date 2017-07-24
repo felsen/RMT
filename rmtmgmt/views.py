@@ -249,7 +249,7 @@ def interview_schedule(request, ):
     title = "Interview Schdule"
     schedule = InterviewSchedule.objects.filter(
         status=1,
-    ).exclude(candidate__status=4)
+    ).exclude(candidate__status__in=[4, 5])
     return render(request, 'schedule.html', locals())
 
 
