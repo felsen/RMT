@@ -44,7 +44,7 @@ def resume_mgmt(request, ):
     Resume Management function's.
     """
     title = "Resume Management"
-    resume = ResumeManagement.objects.all()
+    resume = ResumeManagement.objects.all().order_by("-modified_on")
     return render(request, 'resume_mgmt.html', locals())
 
 
@@ -59,9 +59,16 @@ def add_resume_mgmt(request, ):
     form = ResumeManagementForm()
     if request.method == "POST":
         form = ResumeManagementForm(request.POST, request.FILES)
+        if ResumeManagement.objects.filter(
+                email="felsen88@gmail.com",
+                mobile="1234567890").exists():
+            form.add_error(
+                None,
+                "Email or Mobile Number already added with some other resume.")
         if form.is_valid():
             f = form.save(commit=False)
             f.status = 1
+            f.created_by = request.user
             f.save()
             return HttpResponseRedirect("/resume-management/")
     return render(request, 'add_resume_mgmt.html', locals())
@@ -127,6 +134,28 @@ def edit_requirement_mgmt(request, req_id=None):
             form.save()
             return HttpResponseRedirect("/requirement-management/")
     return render(request, 'add_requirement_mgmt.html', locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def view_resume_mgmt(request, res_id=None):
+    """
+    Function is to detail about resume management
+    """
+    title = "Resume Details"
+    resume = ResumeManagement.objects.get(id=int(res_id))
+    return render(request, 'view_resume_mgmt.html', locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def view_requirement_mgmt(request, req_id=None):
+    """
+    This function is for viewing all the details about Requirement Objects.
+    """
+    title = "Requirement Details"
+    reqmgmt = Requirement.objects.get(id=int(req_id))
+    return render(request, 'view_requirement_mgmt.html', locals())
 
 
 @require_http_methods(['GET', 'POST', ])
@@ -248,8 +277,8 @@ def interview_schedule(request, ):
     """
     title = "Interview Schdule"
     schedule = InterviewSchedule.objects.filter(
-        status=1,
-    ).exclude(candidate__status__in=[4, 5])
+        status__in=[1, 2],
+    ).exclude(candidate__status__in=[4, 6])
     return render(request, 'schedule.html', locals())
 
 
@@ -297,9 +326,10 @@ def update_resume_status(request, resume_id=None, req_id=None):
     """
     title = "Update Interview Schedule"
     r_status = ResumeManagement.objects.get(id=int(resume_id))
-    form = ISForm(resume_id=resume_id)
-    if r_status.status <= 6 or r_status.status == 8:
+    if r_status.status == 5 or r_status.status == 8:
         form = ISNForm(resume_id=resume_id)
+    else:
+        form = ISForm(resume_id=resume_id)
     if request.method == "POST":
         data = request.POST.copy()
         if data.get("resume_status") and data.get("interview_status") \
@@ -395,7 +425,9 @@ def update_approval_status(request):
             approval.remarks = remarks
             approval.approved_by = request.user
             approval.save()
-            isu = InterviewSchedule.objects.get(candidate=approval.resume)
+            isu = InterviewSchedule.objects.get(
+                candidate=approval.resume,
+                resume_status=4)
             isu.status = status
             isu.save()
 

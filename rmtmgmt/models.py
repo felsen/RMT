@@ -90,16 +90,24 @@ class Requirement(Base):
                                 self.position_name, )
 
     def get_lineup_count(self, ):
-        return ResumeManagement.objects.filter(status=1).count()
+        return ResumeManagement.objects.filter(
+            status=1,
+            requirement__client=self.client).count()
 
     def get_col_count(self, ):
-        return ResumeManagement.objects.filter(status=4).count()
+        return ResumeManagement.objects.filter(
+            status=4,
+            requirement__client=self.client).count()
 
     def get_ci_count(self, ):
-        return ResumeManagement.objects.filter(status=6).count()
+        return ResumeManagement.objects.filter(
+            status=6,
+            requirement__client=self.client).count()
 
     def get_joining(self, ):
-        return ResumeManagement.objects.filter(status=9).count()
+        return ResumeManagement.objects.filter(
+            status=9,
+            requirement__client=self.client).count()
 
 
 class ResumeManagement(Base):

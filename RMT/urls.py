@@ -28,6 +28,9 @@ urlpatterns = patterns('',
     url(r'^resume-management/edit/(?P<res_id>\d+)/$',
         rmt_views.edit_resume_mgmt, name='edit-resume-management'),
 
+    url(r'^resume-management/view/(?P<res_id>\d+)/$',
+        rmt_views.view_resume_mgmt, name='view-resume-management'),
+
     url(r'^requirement-management/$', rmt_views.requirement_mgmt,
         name='requirement-management'),
 
@@ -36,6 +39,9 @@ urlpatterns = patterns('',
 
     url(r'^requirement-management/edit/(?P<req_id>\d+)/$',
         rmt_views.edit_requirement_mgmt, name='edit-requirement-mgmt'),
+
+    url(r'^requirement-management/view/(?P<req_id>\d+)/$',
+        rmt_views.view_requirement_mgmt, name='requirement-mgmt-view'),
 
     url(r'^client-management/add/$', rmt_views.add_client_mgmt,
         name='add-client-mgmt'),

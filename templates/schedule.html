@@ -108,7 +108,7 @@
      events    : [
      {% for i in schedule %}
         {
-          title          : "{{ i.candidate.first_name }}-{{ i.candidate.get_status_display }}",
+          title          : "{{ i.candidate.first_name }}-{{ i.get_resume_status_display }}-{{ i.get_status_display }}",
           start          : new Date("{{ i.scheduled_date|safe }}"),
           allDay         : false,
           backgroundColor: '#0073b7', //Blue

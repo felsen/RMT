@@ -25,7 +25,7 @@ INTERVIEW_NEW_STATUS = (
 )
 
 INTERVIEW_APPROVAL_STATUS = (
-    (2, 'Approved'),
+    (2, 'Approval'),
     (3, 'Rejected'),
 )
 

@@ -112,8 +112,8 @@
                   <th>Primary Skills</th>
                   <th>No of Position</th>
                   <th>Open Position</th>
+                  <th>Joined</th>
                   <th>Location</th>
-                  <th>TA</th>
                   <th>Status</th>
                 </tr>
                 </thead>
@@ -123,11 +123,11 @@
                   <td>{{ r.client }}</td>
                   <td>{{ r.position_name }}</td>
                   <td>{{ r.skills }}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td>{{ r.no_of_position }}</td>
+                  <td>{{ r.open_position }}</td>
+                  <td>{{ r.get_joining }}</td>
+                  <td>{{ r.location }}</td>
+                  <td>{{ r.get_position_status_display }}</td>
                 </tr>
                 {% endfor %}
                 </tfoot>

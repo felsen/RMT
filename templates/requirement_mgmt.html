@@ -58,9 +58,9 @@
                   <th>Skills</th>
                   <th>Duration</th>
                   <th>Billings</th>
-                  <th>No of Position / Open Position</th>
+                  <th>Position / Open Position</th>
                   <th>Position Status</th>
-                  <th>Description / Remarks</th>
+                  <th>Last Updated Date</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -75,9 +75,11 @@
                   <td>{{ r.annual_billing }}</td>
                   <td>{{ r.no_of_position }} / {{ r.open_position }}</td>
                   <td>{{ r.get_position_status_display }}</td>
-                  <td>{{ r.desc }} / {{ r.remarks }}</td>
+                  <td>{{ r.modified_on }}</td>
                   <td>
-                    <a href="/requirement-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a></td>
+                    <a href="/requirement-management/edit/{{ r.id }}/"><i class="fa fa-fw fa-edit" style="color: #000000;"></i>Edit</a> |
+                    <a href="/requirement-management/view/{{ r.id }}/" ><i class="fa fa-fw fa-eye" style="color: darkred;"></i>View</a>
+                  </td>
                 </tr>
                 {% endfor %}
                 </tfoot>
