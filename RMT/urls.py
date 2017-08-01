@@ -103,4 +103,7 @@ urlpatterns = patterns('',
     url(r'^freeze-resume/(?P<res_id>\d+)/$',
         rmt_views.freeze_resume, name='freeze-resume'),
 
+    url(r'^user-profile/(?P<user_id>\d+)/$',
+        rmt_views.user_profile, name='user-profile'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

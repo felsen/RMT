@@ -1,6 +1,6 @@
 from django.db import models
-from rolemgmt.models import Base
 from django.contrib.auth.models import User
+from rolemgmt.models import Base, RoleConfig
 
 
 POSITION_STATUS = (
@@ -42,6 +42,14 @@ class UserProfile(Base):
 
     def __unicode__(self, ):
         return "{} {}".format(self.user.first_name, self.user.last_name)
+
+    def get_role(self, ):
+        try:
+            role = RoleConfig.objects.get(user=self.user)
+            role = role.role.name
+        except RoleConfig.DoesNotExist:
+            role = ""
+        return role
 
 
 class Client(Base):

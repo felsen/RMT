@@ -489,6 +489,17 @@ def reports(request, status=None):
     return render(request, 'reports.html', locals())
 
 
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def user_profile(request, user_id=None):
+    """
+    this function will detailing the user profile details.
+    """
+    title = "User Profile Details"
+    user = UserProfile.objects.get(user__id=int(user_id))
+    return render(request, 'profile.html', locals())
+
+
 def createParagraph(c, text, x, y):
     """
     Creating the paragraph text.
