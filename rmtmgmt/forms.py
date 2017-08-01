@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from models import ResumeManagement, Client, \
     Requirement, RESUME_STATUS
 
@@ -78,6 +79,22 @@ class ResumeManagementForm(forms.ModelForm):
         fields = ('requirement', 'first_name', 'last_name', 'email',
                   'mobile', 'skills', 'experience', 'dob', 'ctc', 'ectc',
                   'notice_period', 'current_location', 'remarks', 'resume', )
+
+    def clean_email(self, ):
+        email = self.cleaned_data.get("email")
+        resume = ResumeManagement.objects.filter(
+            email=email).exclude(freeze=True).exists()
+        if resume:
+            raise ValidationError("Email already exists.!")
+        return email
+
+    def clean_mobile(self, ):
+        mobile = self.cleaned_data.get("mobile")
+        resume = ResumeManagement.objects.filter(
+            mobile=mobile).exclude(freeze=True).exists()
+        if resume:
+            raise ValidationError("Mobile Number already exists.!")
+        return mobile
 
 
 class ISNForm(forms.Form):

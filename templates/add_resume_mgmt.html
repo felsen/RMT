@@ -43,10 +43,10 @@
                       {% if field.help_text %}
                         <label class="control-label" for="inputWarning" style="color:#F39C12;">
                           <i class="fa fa-bell-o"></i>
-                          {{ field.help_text }}
+                          {{ field.help_text }} <span style="color: red;"> {{ field.errors|striptags }}</span>
                         </label>
-                      {% endif %}                   
-                      {{ field }}
+                      {% endif %}
+                        {{ field }}
                     </div>                    
                     {% endfor %}
                     <button type="submit" class="btn btn-block btn-primary" style="width: 10%;float: right; margin: 12px 14px 0px 0px;">

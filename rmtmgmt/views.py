@@ -3,8 +3,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.core.mail import EmailMessage, send_mail
 
 from reportlab.pdfgen import canvas
@@ -61,10 +59,6 @@ def add_resume_mgmt(request, ):
     form = ResumeManagementForm()
     if request.method == "POST":
         form = ResumeManagementForm(request.POST, request.FILES)
-        if ResumeManagement.objects.filter(
-                Q(email="felsen88@gmail.com") |
-                Q(mobile="1234567890")).exclude(freeze=True).exists():
-            print "yes"
         if form.is_valid():
             f = form.save(commit=False)
             f.status = 1
