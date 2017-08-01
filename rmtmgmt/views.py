@@ -500,6 +500,17 @@ def user_profile(request, user_id=None):
     return render(request, 'profile.html', locals())
 
 
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def view_requirement(request, ):
+    """
+    this is the function which will get all the requirement details.
+    """
+    title = "Requirement Details"
+    req = Requirement.objects.all()
+    return render(request, 'view_requirement.html', locals())
+
+
 def createParagraph(c, text, x, y):
     """
     Creating the paragraph text.

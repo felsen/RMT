@@ -106,4 +106,7 @@ urlpatterns = patterns('',
     url(r'^user-profile/(?P<user_id>\d+)/$',
         rmt_views.user_profile, name='user-profile'),
 
+    url(r'^view-requirement/$', rmt_views.view_requirement,
+        name='view-requirement'),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
