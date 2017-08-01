@@ -142,6 +142,7 @@ class ResumeManagement(Base):
     remarks = models.TextField(max_length=500, blank=True, null=True)
     resume = models.FileField(upload_to='static/uploads/',
                               blank=True, null=True)
+    freeze = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, blank=True, null=True)
 
     def __unicode__(self, ):

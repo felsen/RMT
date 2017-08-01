@@ -104,11 +104,24 @@
         <li class="header"><b>{{ request.user|get_role }}</b></li>
         {% with request|get_user_menus as menus %}
         {% for i in menus %}
+        {% if i.link == "interview-schedule" %}
         <li class="">
-          <a href="/{{ i.link }}/">
+          <a href="/{{ i.link }}/schedule/">
             <i class="fa fa-dashboard"></i> <span>{{ i.name }}</span>
           </a>
         </li>
+          <li class="">
+            <a href="/{{ i.link }}/joining/">
+              <i class="fa fa-dashboard"></i> <span> Joining Schedule</span>
+            </a>
+          </li>
+          {% else %}
+          <li class="">
+            <a href="/{{ i.link }}/">
+              <i class="fa fa-dashboard"></i> <span>{{ i.name }}</span>
+            </a>
+          </li>
+          {% endif %}
         {% endfor %}
         {% endwith %}
       </ul>

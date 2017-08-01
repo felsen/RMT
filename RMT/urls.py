@@ -67,7 +67,7 @@ urlpatterns = patterns('',
     url(r'^role-management/(?P<status>(:?deactivate|:?activate))/(?P<user_id>\d+)/$',
         rmt_views.role_management_status, name='role-management'),
 
-    url(r'^interview-schedule/$', rmt_views.interview_schedule,
+    url(r'^interview-schedule/(?P<status>\w+)/$', rmt_views.interview_schedule,
         name='interview-schedule'),
 
     url(r'^user-registration/$', role_views.user_registration,
@@ -99,5 +99,8 @@ urlpatterns = patterns('',
 
     url(r'^reports/(?P<status>\w+)/$', rmt_views.reports,
         name='report-status'),
+
+    url(r'^freeze-resume/(?P<res_id>\d+)/$',
+        rmt_views.freeze_resume, name='freeze-resume'),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

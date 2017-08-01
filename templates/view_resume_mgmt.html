@@ -39,8 +39,11 @@
 
             <div class="box-header" style="float:right;margin:0% 64% 0% 0%;">
               <h3 class="box-title">
+                {% if resume.freeze == False %}
                 <a href="/freeze-resume/{{ resume.id }}/" style="color: red;">Freeze</a>
-                <a style="color: green;">Freezed</a>
+                {% else %}
+                <a href="/freeze-resume/{{ resume.id }}/" style="color: green;">Freezed</a>
+                {% endif %}
               </h3>
             </div>
             
@@ -61,12 +64,10 @@
                         <th>Client Description</th>
                         <td>{{ resume.requirement.client.desc }}</td>
                       </tr>
-                      
                       <tr>
                         <th>Position Name</th>
                         <td>{{ resume.requirement.position_name }}</td>
                       </tr>
-
                       <tr>
                         <th>First Name</th>
                         <td>{{ resume.first_name }}</td>

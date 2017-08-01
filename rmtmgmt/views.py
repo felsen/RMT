@@ -3,6 +3,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.core.mail import EmailMessage, send_mail
 
 from reportlab.pdfgen import canvas
@@ -60,11 +62,9 @@ def add_resume_mgmt(request, ):
     if request.method == "POST":
         form = ResumeManagementForm(request.POST, request.FILES)
         if ResumeManagement.objects.filter(
-                email="felsen88@gmail.com",
-                mobile="1234567890").exists():
-            form.add_error(
-                None,
-                "Email or Mobile Number already added with some other resume.")
+                Q(email="felsen88@gmail.com") |
+                Q(mobile="1234567890")).exclude(freeze=True).exists():
+            print "yes"
         if form.is_valid():
             f = form.save(commit=False)
             f.status = 1
@@ -271,14 +271,19 @@ def role_management_status(request, status=None, user_id=None):
 
 @require_http_methods(['GET', ])
 @login_required(login_url='/user-login/')
-def interview_schedule(request, ):
+def interview_schedule(request, status=None):
     """
     Every day interview schdule function.
     """
     title = "Interview Schdule"
-    schedule = InterviewSchedule.objects.filter(
-        status__in=[1, 2],
-    ).exclude(candidate__status__in=[4, 6])
+    if status == "schedule":
+        schedule = InterviewSchedule.objects.filter(
+            status__in=[1, 2], resume_status=6,
+        ).exclude(candidate__status__in=[4, 6])
+    elif status == "joining":
+        schedule = InterviewSchedule.objects.filter(
+            status__in=[1, 2], resume_status=9,
+        ).exclude(candidate__status__in=[4, 6])
     return render(request, 'schedule.html', locals())
 
 
@@ -461,6 +466,19 @@ def update_salary_details(request, hrmgmt_id=None):
                 pass
             return HttpResponseRedirect("/hr-management/")
     return render(request, 'salary.html', locals())
+
+
+@require_http_methods(['GET', ])
+@login_required(login_url='/user-login/')
+def freeze_resume(request, res_id=None):
+    """
+    This function will change the status of the freeze.
+    """
+    status = {True: False, False: True}
+    resume = ResumeManagement.objects.get(id=int(res_id))
+    resume.freeze = status.get(resume.freeze)
+    resume.save()
+    return HttpResponseRedirect("/resume-management/view/{}/".format(res_id))
 
 
 @require_http_methods(['GET', ])
