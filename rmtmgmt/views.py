@@ -19,7 +19,7 @@ from rmtmgmt.forms import ResumeManagementForm, \
     ISUpdateForm, CTCUpdateForm, ISNForm
 from rmtmgmt.models import Client, Requirement, \
     ResumeManagement, InterviewSchedule, \
-    HRManagement
+    HRManagement, UserProfile
 from rolemgmt.models import Role, RoleConfig
 import json
 
@@ -524,14 +524,17 @@ def generate_col_letter(request, hrmgmt_id=None):
         hr = hr
     if hr:
         client = hr.resume.requirement.client.name
-        first_name = hr.resume.first_name
-        last_name = hr.resume.last_name
+        first_name = hr.resume.created_by.first_name.upper()[0]
+        last_name = hr.resume.created_by.last_name.upper()[0]
+        tc = ResumeManagement.objects.filter(
+            created_by=hr.resume.created_by).count()
+        nme = "{}{}".format(first_name, last_name)
         offered_ctc = hr.offered_ctc
         joining_date = hr.joining_date.strftime("%d/%m/%Y")
         s = "{}".format(client)
         ref_id = "Brisa/{}/{}/{}/{}".format("".join([i[0] for i in s.split()]),
                                             datetime.datetime.now().strftime("%b%Y"),
-                                            "NE", 0)
+                                            nme, tc)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}_{}_offer"'.format(first_name, last_name)
